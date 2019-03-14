@@ -16,58 +16,55 @@ class BaseCar:
     def get_photo_file_ext(self):
         return os.path.splitext(self.photo_file_name)[-1]
 
+
 class Car(BaseCar):
 
     """Car class"""
 
-    def __init__(self, passenger_seats_count=0):
+    def __init__(self, passenger_seats_count=0, car_type=None,
+                 photo_file_name=None, brand=None, carrying=None):
+        super().__init__(car_type, photo_file_name, brand, carrying)
         self.passenger_seats_count = passenger_seats_count
+
+    @classmethod
+    def create_machine(cls, car_str):
+        return cls(passenger_seats_count=int(car_str[2]), car_type=car_str[0],
+                   photo_file_name=car_str[3], brand=car_str[1], carrying=float(car_str[5]))
 
 class Truck(BaseCar):
 
     """Truck class"""
 
-    def __init__(self, body_width=0.0, body_height=0.0, body_length=0.0):
-        self.body_width = body_width
-        self.body_height = body_height
-        self.body_length = body_length
+    def __init__(self, whl, car_type=None, photo_file_name=None, brand=None, carrying=None):
+        super().__init__(car_type, photo_file_name, brand, carrying)
+        self.body_width = whl[0]
+        self.body_height = whl[1]
+        self.body_length = whl[2]
 
     def get_body_volume(self):
         return self.body_width * self.body_length * self.body_height
 
+    @classmethod
+    def create_machine(cls, car_str):
+        whl = [.0, .0, .0]
+        t_whl = car_str[4].split('x')
+        if len(t_whl) == 3:
+            whl[0] = float(t_whl[0])
+            whl[1] = float(t_whl[1])
+            whl[2] = float(t_whl[2])
+        return cls(whl, car_type=car_str[0], photo_file_name=car_str[3],
+                   brand=car_str[1], carrying=float(car_str[5]))
+
 class SpecMachine(BaseCar):
 
-    def __init__(self, extra=0.0):
+    def __init__(self, extra=0.0, car_type=None, photo_file_name=None, brand=None, carrying=None):
+        super().__init__(car_type, photo_file_name, brand, carrying)
         self.extra = extra
 
-def create_car(car_str):
-    car = Car()
-    car.car_type = car_str[0]
-    car.brand = car_str[1]
-    car.photo_file_name = car_str[3]
-    car.carrying = float(car_str[5])
-    return car
-
-def create_truck(car_str):
-    truck = Truck()
-    whl = car_str[4].split('x')
-    truck.car_type = car_str[0]
-    truck.brand = car_str[1]
-    truck.photo_file_name = car_str[3]
-    truck.carrying = float(car_str[5])
-    truck.body_length = 0.0 if len(whl) != 3 else float(whl[0])
-    truck.body_width = 0.0 if len(whl) != 3 else float(whl[1])
-    truck.body_height = 0.0 if len(whl) != 3 else float(whl[2])
-    return truck
-
-def create_spec_machine(car_str):
-    spec = SpecMachine()
-    spec.car_type = car_str[0]
-    spec.brand = car_str[1]
-    spec.photo_file_name = car_str[3]
-    spec.carrying = car_str[5]
-    spec.extra = car_str[6]
-    return spec
+    @classmethod
+    def create_machine(cls, car_str):
+        return cls(extra=car_str[6], car_type=car_str[0], photo_file_name=car_str[3],
+                   brand=car_str[1], carrying=float(car_str[5]))
 
 def get_car_list(csv_file_name):
     car_list = []
@@ -77,11 +74,11 @@ def get_car_list(csv_file_name):
         for row in reader:
             if len(row) == 7:
                 if row[0] == 'car':
-                    car_list.append(create_car(row))
+                    car_list.append(Car.create_machine(row))
                 elif row[0] == 'truck':
-                    car_list.append(create_truck(row))
+                    car_list.append(Truck.create_machine(row))
                 elif row[0] == 'spec_machine':
-                    car_list.append(create_spec_machine(row))
+                    car_list.append(SpecMachine.create_machine(row))
     return car_list
 
 """
