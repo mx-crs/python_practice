@@ -4,7 +4,7 @@ import os
 
 class File:
 
-    """Creates iterable obj_file with supporting of __add__ and __repr__ method"""
+    """Creates iterable obj_file with supporting of __add__ and __repr__ methods"""
 
     def __init__(self, file_path):
         self.file_path = file_path
